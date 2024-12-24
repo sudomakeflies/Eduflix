@@ -6,7 +6,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - backend:/app
+      - ./hls:/app/backend/hls  # Monta el directorio local 'hls'
     depends_on:
       - nginx
   nginx:
@@ -16,7 +16,4 @@ services:
     ports:
       - "80:80"
     volumes:
-      - hls:/usr/share/nginx/html/hls
-volumes:
-  hls:
-  backend:
+      - ./hls:/usr/share/nginx/html/hls  # Monta el directorio local 'hls'

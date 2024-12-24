@@ -1,0 +1,136 @@
+/* Estilo principal para la aplicación */
+.App {
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #f9f9f9, #eaeaea);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Título */
+h1 {
+  margin-bottom: 20px;
+  color: #222;
+  font-size: 28px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Lista de elementos */
+ul {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Elemento individual */
+li {
+  margin-bottom: 15px;
+}
+
+/* Botón */
+button {
+  padding: 12px 20px;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Contenedor de video */
+.video-container {
+  width: 100%;
+  max-width: 640px;
+  margin: 20px auto;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Diseño responsivo */
+@media (max-width: 768px) {
+  .App {
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  button {
+    font-size: 14px;
+    padding: 10px 15px;
+  }
+
+  .video-container {
+    max-width: 100%;
+    border-radius: 8px;
+  }
+}
+
+/* Efecto para el logo */
+.App-logo {
+  height: 30vmin;
+  pointer-events: none;
+  animation: App-logo-spin infinite 15s linear;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation-duration: 20s;
+  }
+}
+
+/* Encabezado */
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Link principal */
+.App-link {
+  color: #61dafb;
+  font-size: 18px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.App-link:hover {
+  text-decoration: underline;
+  color: #4CAF50;
+}
+
+/* Animación del logo */
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,15 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
+import './App.css';
 import VideoList from './components/VideoList';
-import VideoUpload from './components/VideoUpload';
+import VideoPlayer from './components/VideoPlayer';
 
 function App() {
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState(null);
+
+  const handleSelectVideo = (url) => {
+    setSelectedVideoUrl(url);
+  };
+
   return (
-    <div>
-      
-        <h1>Video Streaming Dashboard</h1>
-        <VideoUpload />
-        <VideoList />
-      
+    <div className="App">
+      <h1>Eduflix</h1>
+      <VideoList onSelectVideo={handleSelectVideo} />
+      {selectedVideoUrl && <VideoPlayer videoUrl={selectedVideoUrl} />}
     </div>
   );
 }

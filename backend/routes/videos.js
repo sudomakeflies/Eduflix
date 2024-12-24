@@ -1,77 +1,85 @@
-  const express = require('express');
-const router = express.Router();
-const multer = require('multer');
-const ffmpeg = require('fluent-ffmpeg');
+const express = require('express');
+const fs = require('fs');
 const path = require('path');
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '..', '..', 'hls', 'videos'));
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
+const QRCode = require('qrcode');
 
-const upload = multer({ storage: storage });
+const router = express.Router();
 
-const rootPath = path.join(__dirname, '..', '..');
+const rootPath = path.join(__dirname, '..');
+const streamsPath = path.join(rootPath, 'hls', 'streams');
+
+// Define the base IP address
+const baseIP = process.env.BASE_IP || 'http://192.168.0.104';
 
 router.get('/', (req, res) => {
-    const videos = [
-        {
-            name: 'stream_360p',
-            url: '/hls/streams/stream_360p/360p.m3u8',
-        },
-        {
-            name: 'stream_480p',
-            url: '/hls/streams/stream_480p/480p.m3u8',
-        },
-    ];
-    res.json(videos);
-});
-
-router.post('/', upload.single('video'), (req, res) => {
-  const videoPath = path.join(__dirname, '..', '..', 'hls', 'videos', req.file.filename);
-  const videoName = path.basename(req.file.filename, path.extname(req.file.filename));
-    const hlsPath = `hls/playlists/${videoName}`;
-  const m3u8Path = `${hlsPath}/index.m3u8`;
-
-  fs.mkdir(hlsPath, { recursive: true }, (err) => {
+  fs.readdir(streamsPath, { withFileTypes: true }, (err, files) => {
     if (err) {
-      console.error('Error creating directory:', err);
-      return res.status(500).json({ error: `Error creating directory: ${err.message}` });
+      console.error('Error reading streams directory:', err);
+      return res.status(500).json({ error: `Error reading streams directory: ${err.message}` });
     }
-    ffmpeg(videoPath)
-    .outputOptions([
-      '-hls_time 10',
-      '-hls_list_size 0',
-      '-hls_segment_filename', `${hlsPath}/segment%03d.ts`,
-    ])
-    .output(m3u8Path)
-    .on('end', () => {
-      res.json({
-        message: 'Video uploaded and processed successfully',
-        hlsUrl: `/hls/playlists/${videoName}/index.m3u8`,
-      });
-    })
-    .on('error', (err) => {
-      console.error('Error processing video:', err);
-      res.status(500).json({ error: `Error processing video: ${err.message}` });
-    })
-    .run();
+    console.log('Directory read successfully, files:', files);
+    const playlists = files
+      .filter((file) => file.isFile() && path.extname(file.name) === '.m3u8')
+      .map((file) => ({
+        name: path.basename(file.name, path.extname(file.name)),
+        url: `${baseIP}/hls/streams/${file.name}`, // Add the base IP to the URL
+      }));
+
+    res.json(playlists);
   });
 });
 
-router.delete('/:id', (req, res) => {
-  const videoId = req.params.id;
-  const hlsPath = `hls/playlists/${videoId}`;
-
-  fs.rm(hlsPath, { recursive: true }, (err) => {
+router.get('/qr_code', (req, res) => {
+  fs.readdir(streamsPath, { withFileTypes: true }, (err, files) => {
     if (err) {
-      console.error('Error deleting video:', err);
-      return res.status(500).json({ error: 'Error deleting video' });
+      console.error('Error reading streams directory:', err);
+      return res.status(500).json({ error: `Error reading streams directory: ${err.message}` });
     }
-    res.json({ message: 'Video deleted successfully' });
+
+    const playlists = files
+      .filter((file) => file.isFile() && path.extname(file.name) === '.m3u8')
+      .map((file) => ({
+        name: path.basename(file.name, path.extname(file.name)),
+        url: `${baseIP}/hls/streams/${file.name}`,
+      }));
+
+    // Generate QR codes for each playlist
+    const playlistsWithQR = [];
+
+    playlists.forEach((playlist) => {
+      QRCode.toDataURL(playlist.url, (err, qrCode) => {
+        if (err) {
+          console.error('Error generating QR code:', err);
+          return res.status(500).json({ error: `Error generating QR code: ${err.message}` });
+        }
+
+        playlistsWithQR.push({ ...playlist, qrCode });
+
+        // If all QR codes have been generated, render them in HTML
+        if (playlistsWithQR.length === playlists.length) {
+          const htmlResponse = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>QR Codes</title>
+            </head>
+            <body>
+              <h1>QR Codes for Playlists</h1>
+              ${playlistsWithQR.map(playlist => `
+                <div>
+                  <h2>${playlist.name}</h2>
+                  <img src="${playlist.qrCode}" alt="${playlist.name} QR Code">
+                </div>
+              `).join('')}
+            </body>
+            </html>
+          `;
+          res.send(htmlResponse);
+        }
+      });
+    });
   });
 });
 
