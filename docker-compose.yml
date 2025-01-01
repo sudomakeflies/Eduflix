@@ -9,11 +9,21 @@ services:
       - ./hls:/app/backend/hls  # Monta el directorio local 'hls'
     depends_on:
       - nginx
+    env_file:
+      - .env
+    restart: unless-stopped  # Añadido para mejor manejo de errores
   nginx:
     build:
       context: .
       dockerfile: nginx/Dockerfile
+      args:  # Añadido para pasar BASE_IP durante el build
+        - BASE_IP=${BASE_IP}
     ports:
       - "80:80"
     volumes:
       - ./hls:/usr/share/nginx/html/hls  # Monta el directorio local 'hls'
+    env_file:
+      - .env
+    environment:
+      - SERVER_NAME=${HOSTNAME}
+    restart: unless-stopped  # Añadido para mejor manejo de errores

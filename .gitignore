@@ -1,4 +1,6 @@
 .DS_Store
 node_modules/
 hls/videos/*
+!hls/videos/README.md
 hls/streams/*
+!hls/streams/README.md

@@ -9,7 +9,7 @@ const rootPath = path.join(__dirname, '..');
 const streamsPath = path.join(rootPath, 'hls', 'streams');
 
 // Define the base IP address
-const baseIP = process.env.BASE_IP || 'http://192.168.0.104';
+const baseIP = process.env.BASE_IP;
 
 router.get('/', (req, res) => {
   fs.readdir(streamsPath, { withFileTypes: true }, (err, files) => {
