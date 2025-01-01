@@ -25,5 +25,5 @@ services:
     env_file:
       - .env
     environment:
-      - SERVER_NAME=${HOSTNAME}
+      - SERVER_NAME=${BASE_IP}
     restart: unless-stopped  # Añadido para mejor manejo de errores
